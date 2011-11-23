@@ -1,4 +1,4 @@
-package com.submarinerich.service
+package com.submarinerich.service.school
 
 import unfiltered.request._
 import unfiltered.response._
@@ -9,7 +9,7 @@ import org.squeryl.Session
 import org.squeryl.adapters.MySQLAdapter
 
 /** unfiltered plan */
-class BlankService extends unfiltered.filter.Plan {
+class SchoolService extends unfiltered.filter.Plan {
   import QParams._
 
   val logger = LoggerFactory.getLogger(getClass())
