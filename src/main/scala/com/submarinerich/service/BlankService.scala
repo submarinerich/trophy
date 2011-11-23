@@ -5,12 +5,22 @@ import unfiltered.response._
 
 import org.slf4j.{LoggerFactory,Logger}
 import org.squeryl.SessionFactory
+import org.squeryl.Session
+import org.squeryl.adapters.MySQLAdapter
 
 /** unfiltered plan */
 class BlankService extends unfiltered.filter.Plan {
   import QParams._
 
   val logger = LoggerFactory.getLogger(getClass())
+
+  Class.forName("com.mysql.jdbc.Driver") 
+
+  SessionFactory.concreteFactory = Some(()=>
+    Session.create(
+      java.sql.DriverManager.getConnection("jdbc://localhost:3306/servicename","username","superpass"),new MySQLAdapter))
+
+
 
   def intent = {
     case GET(Path("/")) =>
