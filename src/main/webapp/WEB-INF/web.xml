@@ -4,11 +4,11 @@
  "http://java.sun.com/dtd/web-app_2_3.dtd">
 <web-app>
   <filter>
-    <filter-name>SchoolService</filter-name>
-    <filter-class>com.submarinerich.service.school.SchoolService</filter-class>
+    <filter-name>BlankService</filter-name>
+    <filter-class>com.submarinerich.service.blank.BlankService</filter-class>
   </filter>
   <filter-mapping>
-    <filter-name>SchoolService</filter-name>
+    <filter-name>BlankService</filter-name>
     <url-pattern>/*</url-pattern>
   </filter-mapping>
 </web-app>
