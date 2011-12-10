@@ -3,10 +3,11 @@ EC2_KEY="~/.ec2/ftv.pem"
 PRODUCTION_WAR="torrent-1.0.war"
 CONTEXT_PATH="torrent-1.0"
 CONNECTION="torrentConnection"
+PORT="8085"
 
 desc "run the app"
 task :run do
-  sh "mvn jetty:run -Djetty.port=8083"
+  sh "mvn jetty:run -Djetty.port="+PORT
 end
 
 desc "clean up"
