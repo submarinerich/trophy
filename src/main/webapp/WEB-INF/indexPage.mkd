@@ -1,6 +1,6 @@
 
 
-## TorrentService API ##
+## TrophyService API ##
 
 
 ---

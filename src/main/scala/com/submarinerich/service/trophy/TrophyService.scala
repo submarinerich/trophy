@@ -1,4 +1,4 @@
-package com.submarinerich.service.torrent
+package com.submarinerich.service.trophy
 
 import unfiltered.request._
 import unfiltered.response._
@@ -13,7 +13,7 @@ import org.squeryl.adapters.PostgreSqlAdapter
 import com.submarinerich.service.Config
 
 /** unfiltered plan */
-class TorrentService extends unfiltered.filter.Plan {
+class TrophyService extends unfiltered.filter.Plan {
   import QParams._
 
  /* setup logger */

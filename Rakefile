@@ -1,9 +1,8 @@
 BIGGIE_SERVER="50.16.245.7"
 EC2_KEY="~/.ec2/ftv.pem"
-PRODUCTION_WAR="torrent-1.0.war"
-CONTEXT_PATH="torrent-1.0"
-CONNECTION="torrentConnection"
-PORT="8085"
+PRODUCTION_WAR="trophyservice-1.0.war"
+CONNECTION="trophyConnection"
+PORT="8084"
 
 desc "run the app"
 task :run do
