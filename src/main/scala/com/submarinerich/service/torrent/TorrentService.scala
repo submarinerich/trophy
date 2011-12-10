@@ -53,7 +53,9 @@ class TorrentService extends unfiltered.filter.Plan {
       logger.debug("GET /")
 			
       Ok ~> Html(Config.indexPage)
-    
+    case GET(Path("/hey")) => 
+
+		 Ok ~> ResponseString("yo")
   }
 
 	def load( f : javax.servlet.FilterConfig ) : Unit = {
