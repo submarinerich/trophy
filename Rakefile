@@ -3,10 +3,11 @@ EC2_KEY="~/.ec2/ftv.pem"
 PRODUCTION_WAR="trophy-1.0.war"
 CONTEXT_PATH="trophy-1.0"
 CONNECTION="trophyConnection"
+PORT="8084"
 
 desc "run the app"
 task :run do
-  sh "mvn jetty:run -Djetty.port=8084"
+  sh "mvn jetty:run -Djetty.port="+PORT
 end
 
 desc "clean up"
