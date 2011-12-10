@@ -1,12 +1,12 @@
 BIGGIE_SERVER="50.16.245.7"
 EC2_KEY="~/.ec2/ftv.pem"
-PRODUCTION_WAR="torrent-1.0.war"
-CONTEXT_PATH="torrent-1.0"
-CONNECTION="torrentConnection"
+PRODUCTION_WAR="trophy-1.0.war"
+CONTEXT_PATH="trophy-1.0"
+CONNECTION="trophyConnection"
 
 desc "run the app"
 task :run do
-  sh "mvn jetty:run -Djetty.port=8083"
+  sh "mvn jetty:run -Djetty.port=8084"
 end
 
 desc "clean up"

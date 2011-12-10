@@ -6,10 +6,10 @@
   
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.submarinerich</groupId>
-  <artifactId>torrentservice</artifactId>
+  <artifactId>trophyservice</artifactId>
   <version>1.0</version>
   <packaging>war</packaging>
-  <name>Torrent Service</name>
+  <name>Trophy Service</name>
   <inceptionYear>2011</inceptionYear>
   <properties>
     <scala.version>2.8.1</scala.version>
