@@ -4,7 +4,7 @@ import unfiltered.request._
 import unfiltered.request.{ & => ampersand }
 import unfiltered.response._
 
-import org.slf4j.{LoggerFactory,Logger}
+import grizzled.slf4j.Logger
 import org.squeryl.SessionFactory
 import org.squeryl.Session
 import org.squeryl.PrimitiveTypeMode._
@@ -14,6 +14,9 @@ import org.squeryl.adapters.PostgreSqlAdapter
 import com.submarinerich.service.Config
 import com.codahale.jerkson.Json._
 
+import com.twitter.ostrich.admin.RuntimeEnvironment
+import com.twitter.ostrich.admin.AdminHttpService
+import com.twitter.ostrich.stats.Stats
 
 import com.submarinerich.service.trophy.model.{Favorite,Rating}
 
@@ -23,8 +26,13 @@ import com.submarinerich.service.trophy.model.{Favorite,Rating}
 class TrophyService extends unfiltered.filter.Plan {
   import QParams._
 
- /* setup logger */
-  val logger = LoggerFactory.getLogger(getClass())
+	/* setup logger */
+  val logger = Logger(getClass())
+
+	/* setup ostrich */
+  var service: AdminHttpService = new AdminHttpService(9085, 20, Stats, new RuntimeEnvironment(getClass))
+  service.start()
+  logger.info("ostrich running on port: "+service.address.getPort)
 
   /* setup database */
 	try{
@@ -58,10 +66,12 @@ class TrophyService extends unfiltered.filter.Plan {
   def intent = {
     case GET(Path("/")) =>
 			load(config)
+			Stats.incr("/ called")
       logger.debug("GET /")
       Ok ~> Html(Config.indexPage)
     case POST(Path("/fav") ampersand Params(params)) => 
 			load(config)
+			Stats.incr("/fav called")
 			var source : Long = -1
 			var dest : Long = -1
 			var category : Int = 0
@@ -94,6 +104,7 @@ class TrophyService extends unfiltered.filter.Plan {
 			}
 		case POST(Path("/unfav") ampersand Params(params)) => 
 			load(config)
+			Stats.incr("/unfav called")
 			var source : Long = -1
 			var dest : Long = -1
 			var category : Int = 0
@@ -116,6 +127,7 @@ class TrophyService extends unfiltered.filter.Plan {
 
 		case POST(Path("/rate") ampersand Params(params)) => 
 			load(config)
+			Stats.incr("/rate called")
 			var source : Long = -1
 			var dest : Long = -1
 			var rating : Int = 0
@@ -158,6 +170,7 @@ class TrophyService extends unfiltered.filter.Plan {
 			}
 		case GET(Path(Seg("favorites"::item::"count"::Nil)) ampersand Params(params)) =>
 		 	var cnt : Long = 0
+			Stats.incr("/favorites/item/count called")
 			if( item.toLong > -1 )
 			transaction{
 				cnt = from(Favorite.favorites)(p => 
@@ -168,6 +181,7 @@ class TrophyService extends unfiltered.filter.Plan {
 		 Ok ~> ResponseString(generate(Map("id" -> item.toLong, "count" -> cnt)))
 		case GET(Path(Seg("ratings"::item::"count"::Nil)) ampersand Params(params)) =>
 			load(config)
+			Stats.incr("/ratings/item/count called")
 			var cnt : Long = 0
 			if( item.toLong > -1 )
 			transaction{
@@ -179,6 +193,7 @@ class TrophyService extends unfiltered.filter.Plan {
 		 Ok ~> ResponseString(generate(Map("id" -> item.toLong, "count" -> cnt)))
 		case GET(Path(Seg("ratings"::item::"average"::Nil)) ampersand Params(params)) =>
 			load(config)
+			Stats.incr("/ratings/item/average called")
 		 	var ratings : List[Rating] = List()
 			if( item.toLong > -1 )
 			transaction{

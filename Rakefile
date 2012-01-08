@@ -15,6 +15,11 @@ task :clean do
   sh "rm -rf target/"
 end
 
+desc "test cases"
+task :test do
+    sh "mvn test"
+end
+
 namespace :package do
   desc "package for production"
   task :production do
