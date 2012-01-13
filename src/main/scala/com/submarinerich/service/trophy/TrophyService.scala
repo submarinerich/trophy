@@ -34,10 +34,13 @@ class TrophyService extends unfiltered.filter.Plan {
   service.start()
   logger.info("ostrich running on port: "+service.address.getPort)
 
+  var pg_username = "trophy"
+  var pg_password = "trophy48284sdwrervivce"
+
   /* setup database */
 	try{
 		var ds_unpooled : DataSource = DataSources.unpooledDataSource("jdbc:postgresql://localhost/trophy", 
-		                                                        "trophy","trophy48284sdwrervivce");
+		                                                       pg_username,pg_password) 
 		var ds_pooled : DataSource = DataSources.pooledDataSource( ds_unpooled );
 		logger.info("datasource looks like: "+ds_pooled)
 		Class.forName("org.postgresql.Driver") 
@@ -50,7 +53,7 @@ class TrophyService extends unfiltered.filter.Plan {
 			SessionFactory.concreteFactory = Some( () =>
 		    Session.create(
 		      java.sql.DriverManager.getConnection("jdbc:postgresql://localhost/trophy", 
-					                                                        "trophy","trophy48284sdwrervivce"),new PostgreSqlAdapter()))
+					                                                        pg_username,pg_password),new PostgreSqlAdapter()))
 		}
 		case _ => { 
 			logger.info("uncaught error")
@@ -58,7 +61,7 @@ class TrophyService extends unfiltered.filter.Plan {
 				SessionFactory.concreteFactory = Some( () =>
 			    Session.create(
 			      java.sql.DriverManager.getConnection("jdbc:postgresql://localhost/trophy", 
-						                                                        "trophy","trophy48284sdwrervivce"),new PostgreSqlAdapter()))
+						                                                        pg_username,pg_password),new PostgreSqlAdapter()))
 			}
 	}
 	
@@ -168,6 +171,22 @@ class TrophyService extends unfiltered.filter.Plan {
 					Ok ~> ResponseString( generate( Map( "id" -> f.id, "source" -> f.source, "destination" -> f.destination, "rating" -> f.rating )))
 				case _ => BadRequest ~> ResponseString( generate(Map("error" -> "something wrong")))				
 			}
+
+    case GET(Path(Seg("favorites"::source::Nil)) ampersand Params(params)) =>
+      Stats.incr("/favorites/<source> called")
+      try{
+        var s : Long = source.toLong
+        var favs : List[Favorite] = List()
+        transaction{
+          favs = Favorite.favorites.where( a => a.source === s ).toList 
+        }
+        var items : scala.collection.mutable.ArrayBuffer[Long] = new scala.collection.mutable.ArrayBuffer[Long]()
+        favs.map( a => items += a.destination )
+        Ok ~> ResponseString( generate( Map("source" -> s, "favorites" -> items.toArray ) ))
+      }catch{
+        case e : Exception => BadRequest ~> ResponseString( generate(Map("error" -> "no source")))
+        case _ => BadRequest ~> ResponseString( generate(Map("error" -> "no source")))
+      }
 		case GET(Path(Seg("favorites"::item::"count"::Nil)) ampersand Params(params)) =>
 		 	var cnt : Long = 0
 			Stats.incr("/favorites/item/count called")

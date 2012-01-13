@@ -1,6 +1,0 @@
-## todo for this one ##
-
-[webdefaults.xml](http://maven.apache.org/plugins/maven-war-plugin/examples/adding-filtering-webresources.html)
-
-
-

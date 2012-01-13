@@ -1,11 +1,24 @@
+## Trophy Service ##
+
+**How To Run**
+
+* assumes postgres/you've run the bootstrap.sql file
+* you should straighten out your usernames/passwords
+
+Passwords are located at:
+
+    src/main/scala/com/submarinerich/service/trophy/TrophyService.scala:37
+
+Then you start up with:
+
+    rake run
+
+It will run on port 8085, and you can see what api options are available. 
+
+the api available will be at http://localhost:8085/
 
 
-## TrophyService API ##
-
-
----
-
-Instructions!
+## API documentation ##
 
 
 **[GET] / **
@@ -55,8 +68,3 @@ see how many ratings an _item_ has
 get the average rating for _item_
 
 
-
-
-
-	
-	
