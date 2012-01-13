@@ -21,9 +21,9 @@ the api available will be at http://localhost:8085/
 ## API documentation ##
 
 
-**[GET] / **
+### GET /
 
-**[POST] /fav **
+### POST /fav 
 
 make a new favorite
 
@@ -32,7 +32,7 @@ make a new favorite
         destination (required: Long)
         category (optional: Long)
 
-**[POST] /unfav **
+### POST /unfav
 
 unfavorite something
 
@@ -41,11 +41,11 @@ unfavorite something
         destination (required: Long)
         category (optional: Long)
 
-**[GET] /favorites/ ** _source_
+### GET /favorites/ _source_
 
 get all the items that _source_ has favorited where _source_ is a *Long*
 
-**[POST] /rate**
+### POST /rate
 
 rate something
 
@@ -54,16 +54,16 @@ rate something
         destination (required: Long)
         rating (required: Long)
 
-**[GET] /favorites/** _item_  /count
+### GET /favorites/ _item_  /count
 
 see how many favorites an _item_ has
 
 
-**[GET] /ratings/** _item_  /count
+### GET /ratings/ _item_  /count
 
 see how many ratings an _item_ has
 
-**[GET] /ratings/** _item_  /average
+### GET /ratings/ _item_  /average
 
 get the average rating for _item_
 
