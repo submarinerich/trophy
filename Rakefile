@@ -1,4 +1,4 @@
-BIGGIE_SERVER="50.16.245.7"
+BIGGIE_SERVER=ENV['BIGGIE_SERVER']
 EC2_KEY="~/.ec2/ftv.pem"
 PRODUCTION_WAR="trophyservice-1.0.war"
 CONNECTION="trophyConnection"
@@ -20,6 +20,10 @@ task :test do
     sh "mvn test"
 end
 
+desc "deploy to server"
+task :deploy do
+    Rake::Task['deploysteps:flush'].invoke
+end
 namespace :package do
   desc "package for production"
   task :production do
@@ -36,7 +40,8 @@ namespace :package do
   end
 end
 
-namespace :deploy do
+
+namespace :deploysteps do
   desc "clean up after last install"
   task :clean do
     sh "ssh -i "+EC2_KEY+" ubuntu@"+BIGGIE_SERVER+" rm -rf /home/ubuntu/newapps/"
@@ -59,14 +64,10 @@ namespace :deploy do
   task :flush do
     Rake::Task['clean'].invoke
     Rake::Task['package'].invoke
-    Rake::Task['deploy:clean'].invoke
-    Rake::Task['deploy:dir'].invoke
-    Rake::Task['deploy:upload'].invoke
-    Rake::Task['deploy:reload'].invoke
+    Rake::Task['deploysteps:clean'].invoke
+    Rake::Task['deploysteps:dir'].invoke
+    Rake::Task['deploysteps:upload'].invoke
+    Rake::Task['deploysteps:reload'].invoke
   end
 end
 
-desc "package for the server (Production)"
-task :package do
-  Rake::Task['package:production'].invoke
-end
