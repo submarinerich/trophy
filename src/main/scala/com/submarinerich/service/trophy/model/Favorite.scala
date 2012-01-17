@@ -14,4 +14,4 @@ object Favorite extends Schema{
 	on(favorites)( b => declare(b.id is(autoIncremented("favorites_id_seq"))))
 }
 
-// vim: set ts=4 sw=4 et:
+// vim: set ts=2 sw=2 et:

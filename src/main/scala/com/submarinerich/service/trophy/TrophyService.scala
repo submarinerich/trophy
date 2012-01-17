@@ -4,76 +4,48 @@ import unfiltered.request._
 import unfiltered.request.{ & => ampersand }
 import unfiltered.response._
 
-import grizzled.slf4j.Logger
-import org.squeryl.SessionFactory
-import org.squeryl.Session
+import com.submarinerich.json.JSONUtil.generate
+import com.submarinerich.display.DisplayMarkdown
+import com.submarinerich.util.Settings
+import com.submarinerich.service.SubmarineRichService
 import org.squeryl.PrimitiveTypeMode._
-import javax.sql.DataSource
-import com.mchange.v2.c3p0.DataSources
-import org.squeryl.adapters.PostgreSqlAdapter
-import com.submarinerich.service.Config
-import com.codahale.jerkson.Json._
 
-import com.twitter.ostrich.admin.RuntimeEnvironment
-import com.twitter.ostrich.admin.AdminHttpService
+import grizzled.slf4j.Logger
+
+import actors._
+
 import com.twitter.ostrich.stats.Stats
 
 import com.submarinerich.service.trophy.model.{Favorite,Rating}
 
 //http://xuwei-k.github.com/unfiltered-sxr/unfiltered-2.9.1-0.5.0/unfiltered/response/statuses.scala.html
 
-/** unfiltered plan */
-class TrophyService extends unfiltered.filter.Plan {
+class TrophyService extends SubmarineRichService
+{
   import QParams._
 
 	/* setup logger */
   val logger = Logger(getClass())
 
-	/* setup ostrich */
-  var service: AdminHttpService = new AdminHttpService(9085, 20, Stats, new RuntimeEnvironment(getClass))
-  service.start()
-  logger.info("ostrich running on port: "+service.address.getPort)
+  Settings.setFile("/submarinerich/service/trophy.yaml")
+  
+  conf = Settings.shared
 
-  var pg_username = "trophy"
-  var pg_password = "trophy48284sdwrervivce"
+	/* setup ostrich */
+  startOstrich
+
+  log.info("ostrich running on port: "+service.address.getPort)
 
   /* setup database */
-	try{
-		var ds_unpooled : DataSource = DataSources.unpooledDataSource("jdbc:postgresql://localhost/trophy", 
-		                                                       pg_username,pg_password) 
-		var ds_pooled : DataSource = DataSources.pooledDataSource( ds_unpooled );
-		logger.info("datasource looks like: "+ds_pooled)
-		Class.forName("org.postgresql.Driver") 
-		SessionFactory.concreteFactory = Some( () => 
-			Session.create(ds_pooled.getConnection(), new PostgreSqlAdapter())
-		)
-	}catch{
-		case e : javax.naming.NameNotFoundException => {
-			Class.forName("org.postgresql.Driver") 
-			SessionFactory.concreteFactory = Some( () =>
-		    Session.create(
-		      java.sql.DriverManager.getConnection("jdbc:postgresql://localhost/trophy", 
-					                                                        pg_username,pg_password),new PostgreSqlAdapter()))
-		}
-		case _ => { 
-			logger.info("uncaught error")
-				Class.forName("org.postgresql.Driver") 
-				SessionFactory.concreteFactory = Some( () =>
-			    Session.create(
-			      java.sql.DriverManager.getConnection("jdbc:postgresql://localhost/trophy", 
-						                                                        pg_username,pg_password),new PostgreSqlAdapter()))
-			}
-	}
-	
+  setupPostgresConnection
+
 
   def intent = {
     case GET(Path("/")) =>
-			load(config)
 			Stats.incr("/ called")
       logger.debug("GET /")
-      Ok ~> Html(Config.indexPage)
+      Ok ~> Html(DisplayMarkdown("indexPage.mkd")) 
     case POST(Path("/fav") ampersand Params(params)) => 
-			load(config)
 			Stats.incr("/fav called")
 			var source : Long = -1
 			var dest : Long = -1
@@ -106,7 +78,6 @@ class TrophyService extends unfiltered.filter.Plan {
 				case _ => BadRequest ~> ResponseString( generate(Map("error" -> "something wrong")))				
 			}
 		case POST(Path("/unfav") ampersand Params(params)) => 
-			load(config)
 			Stats.incr("/unfav called")
 			var source : Long = -1
 			var dest : Long = -1
@@ -129,7 +100,6 @@ class TrophyService extends unfiltered.filter.Plan {
 			Ok ~> ResponseString(generate(Map("success" -> "deleted favorite")))
 
 		case POST(Path("/rate") ampersand Params(params)) => 
-			load(config)
 			Stats.incr("/rate called")
 			var source : Long = -1
 			var dest : Long = -1
@@ -199,7 +169,6 @@ class TrophyService extends unfiltered.filter.Plan {
 			}
 		 Ok ~> ResponseString(generate(Map("id" -> item.toLong, "count" -> cnt)))
 		case GET(Path(Seg("ratings"::item::"count"::Nil)) ampersand Params(params)) =>
-			load(config)
 			Stats.incr("/ratings/item/count called")
 			var cnt : Long = 0
 			if( item.toLong > -1 )
@@ -211,7 +180,6 @@ class TrophyService extends unfiltered.filter.Plan {
 			}
 		 Ok ~> ResponseString(generate(Map("id" -> item.toLong, "count" -> cnt)))
 		case GET(Path(Seg("ratings"::item::"average"::Nil)) ampersand Params(params)) =>
-			load(config)
 			Stats.incr("/ratings/item/average called")
 		 	var ratings : List[Rating] = List()
 			if( item.toLong > -1 )
@@ -226,10 +194,7 @@ class TrophyService extends unfiltered.filter.Plan {
 		 Ok ~> ResponseString(generate(Map("id" -> item.toLong, "count" -> ratings.size, "average" -> avg )))
   }
 
-	def load( f : javax.servlet.FilterConfig ) : Unit = {
-		if( !Config.loaded )
-			Config.load(f)
-	}
+	
 }
 
-// vim: set ts=4 sw=4 et:
+// vim: set ts=2 sw=2 et:

@@ -1,24 +1,23 @@
 BIGGIE_SERVER=ENV['BIGGIE_SERVER']
 EC2_KEY="~/.ec2/ftv.pem"
-PRODUCTION_WAR="trophyservice-1.0.war"
 CONNECTION="trophyConnection"
 PORT="8085"
+
+require 'build/common.rb'
 
 desc "run the app"
 task :run do
   sh "mvn jetty:run -Djetty.port="+PORT
 end
 
-desc "clean up"
-task :clean do
-  sh "rm -rf deployment/"
-  sh "rm -rf target/"
-end
+p = projectInfo()
+version = p[0]
+scalaVersion = [1]
+artifactId = p[2]
+groupId = p[3]
+packaging = p[4]
 
-desc "test cases"
-task :test do
-    sh "mvn test"
-end
+productionWar = artifactId+"-"+version+"."+packaging
 
 desc "deploy to server"
 task :deploy do
@@ -27,7 +26,7 @@ end
 namespace :package do
   desc "package for production"
   task :production do
-    TO_ADD="<Set name=\"war\"><SystemProperty name=\"jetty.home\" default=\".\"/>/webapps/"+PRODUCTION_WAR+"</Set><Set name=\"connectorNames\"><Array type=\"String\"><Item>"+CONNECTION+"</Item></Array></Set></Configure>"
+    TO_ADD="<Set name=\"war\"><SystemProperty name=\"jetty.home\" default=\".\"/>/webapps/"+productionWar+"</Set><Set name=\"connectorNames\"><Array type=\"String\"><Item>"+CONNECTION+"</Item></Array></Set></Configure>"
     JETTY_WEB="src/main/webapp/WEB-INF/jetty-web.xml"
     sh "cp "+JETTY_WEB+" tmp.xml"
     sh "cat tmp.xml | sed \'s#</Configure># #' > "+JETTY_WEB
@@ -35,8 +34,8 @@ namespace :package do
     sh "mvn package"
     sh "mv tmp.xml "+JETTY_WEB
     sh "mkdir -p deployment"
-    sh "cp target/"+PRODUCTION_WAR+" deployment/"
-    puts "the war file is located in deployment/"+PRODUCTION_WAR+"\n"
+    sh "cp target/"+productionWar+" deployment/"
+    puts "the war file is located in deployment/"+productionWar+"\n"
   end
 end
 
@@ -52,11 +51,11 @@ namespace :deploysteps do
   end
   desc "upload the war file"
   task :upload do
-    sh "scp -i "+EC2_KEY+" deployment/"+PRODUCTION_WAR+" ubuntu@"+BIGGIE_SERVER+":~/newapps/"
+    sh "scp -i "+EC2_KEY+" deployment/"+productionWar+" ubuntu@"+BIGGIE_SERVER+":~/newapps/"
   end
   desc "reload in jetty"
   task :reload do
-    sh "ssh -i "+EC2_KEY+" ubuntu@"+BIGGIE_SERVER+" sudo cp /home/ubuntu/newapps/"+PRODUCTION_WAR+" /usr/share/jetty/webapps/"
+    sh "ssh -i "+EC2_KEY+" ubuntu@"+BIGGIE_SERVER+" sudo cp /home/ubuntu/newapps/"+productionWar+" /usr/share/jetty/webapps/"
     sh "ssh -i "+EC2_KEY+" ubuntu@"+BIGGIE_SERVER+" sudo /etc/init.d/jetty restart"
   end
 
